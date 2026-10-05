@@ -57,11 +57,11 @@ const SUPABASE_URL='https://mrztmlnwtchcpmlutjup.supabase.co';
 const SUPABASE_KEY='sb_publishable_Cy64ks3XjIpYbWqmysW20w_TE2B1G01';
 const DOCUMENT_ID='2e9b2d91-6c2a-4f95-9b9f-7c7d8e5a4b31';
 const SUPABASE_READY=!SUPABASE_URL.includes('ضعِي_هنا')&&!SUPABASE_KEY.includes('ضعِي_هنا');
-const VIEWER_MODE=new URLSearchParams(location.search).get('view')==='1';
+const VIEWER_MODE=new URLSearchParams(location.search).get('view')==='1'||new URLSearchParams(location.hash.replace(/^#/,'?')).get('view')==='1';
 async function sbFetch(path,opts={}){
  if(!SUPABASE_READY) throw new Error('Supabase غير مُعد');
  const h=Object.assign({'apikey':SUPABASE_KEY,'Content-Type':'application/json'},opts.headers||{});
- const r=await fetch(SUPABASE_URL+path,Object.assign({},opts,{headers:h}));
+ const sep=path.includes('?')?'&':'?'; const r=await fetch(SUPABASE_URL+path+sep+'_t='+Date.now(),Object.assign({},opts,{cache:'no-store',headers:h}));
  const txt=await r.text();let j=null;try{j=txt?JSON.parse(txt):null}catch(_){}
  if(!r.ok)throw new Error((j&&(j.msg||j.message||j.error_description||j.error))||txt||('HTTP '+r.status));return j;
 }
@@ -105,6 +105,8 @@ async function publishSupabase(){
  try{const me=await sbFetch('/auth/v1/user',{headers:authHeaders()});
   const body={id:DOCUMENT_ID,owner_id:me.id,title:'ملف الإنجاز الإلكتروني',data:S,published_at:new Date().toISOString()};
   await sbFetch('/rest/v1/portfolio_documents?on_conflict=id',{method:'POST',headers:Object.assign({'Prefer':'resolution=merge-duplicates,return=minimal'},authHeaders()),body:JSON.stringify(body)});
+  const verify=await sbFetch('/rest/v1/portfolio_documents?id=eq.'+DOCUMENT_ID+'&select=updated_at,published_at,data',{headers:authHeaders()});
+  if(!verify||!verify[0]||!verify[0].data)throw new Error('لم يتم التحقق من النسخة المنشورة');
   dirty=false;toast('تم الحفظ والنشر للوكيلة تلقائياً');try{await navigator.clipboard.writeText(location.origin+location.pathname+'?view=1');toast('تم نسخ رابط الوكيلة')}catch(_){}
  }catch(e){toast('تعذر النشر: '+e.message)}
 }
@@ -204,7 +206,8 @@ document.addEventListener('click',async e=>{
 });
 async function sv(f){try{nativeDownload(f.n,blob(f.d))}catch(e){toast('تعذّر التحميل')}}
 window.addEventListener('beforeunload',e=>{if(edit&&dirty)e.preventDefault()});
-can=!PUBLIC_VIEW;
-edit=!PUBLIC_VIEW;
+can=!PUBLIC_VIEW&&!VIEWER_MODE;
+edit=!PUBLIC_VIEW&&!VIEWER_MODE;
 render();
+if(VIEWER_MODE)loadViewer();
 </script></body></html>
