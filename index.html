@@ -53,11 +53,11 @@ const PUBLIC_VIEW=false;
 const STANDALONE=true;
 
 /* ===== Supabase automatic publishing ===== */
-const SUPABASE_URL='https://mrztmlnwtchcpmlutjup.supabase.co/rest/v1/';
+const SUPABASE_URL='https://mrztmlnwtchcpmlutjup.supabase.co';
 const SUPABASE_KEY='sb_publishable_Cy64ks3XjIpYbWqmysW20w_TE2B1G01';
 const DOCUMENT_ID='2e9b2d91-6c2a-4f95-9b9f-7c7d8e5a4b31';
 const SUPABASE_READY=!SUPABASE_URL.includes('ضعِي_هنا')&&!SUPABASE_KEY.includes('ضعِي_هنا');
-const VIEWER_MODE=new URLSearchParams(location.search).get('view')==='1'||new URLSearchParams(location.hash.replace(/^#/,'?')).get('view')==='1';
+const VIEWER_MODE=new URLSearchParams(location.search).get('view')==='1';
 async function sbFetch(path,opts={}){
  if(!SUPABASE_READY) throw new Error('Supabase غير مُعد');
  const h=Object.assign({'apikey':SUPABASE_KEY,'Content-Type':'application/json'},opts.headers||{});
@@ -128,13 +128,13 @@ function render(){
  <div class="tags"><span class="tag">معلمة حاسب</span><span class="tag">معلمة مهارات حياتية وأسرية</span></div></div>
  <nav>${vis.map(o=>`<a href="#s${o.i}">${esc(o.s.t)}</a>`).join('')}</nav><main>`;
  if(edit)h+=`<div class="it" style="margin-bottom:14px"><b>إعدادات الملف</b><div class="row"><input data-g="school" value="${esc(S.school)}" placeholder="اسم المدرسة"><input data-g="name" value="${esc(S.name)}" placeholder="اسم المعلمة"><input data-g="year" value="${esc(S.year)}" placeholder="العام"></div>
- <div class="row"><label class="btn g">رفع شعار المدرسة<input type="file" accept="image/*" hidden data-logo></label><span class="emp">يتم أخذ ألوان التصميم من الشعار تلقائياً</span></div>
+ <div class="row"><label class="btn g">رفع شعار المدرسة<input type="file" accept="image/*" hidden data-logo></label>${S.logo?'<button class="btn r" data-act="clogo">🗑 حذف الشعار</button>':''}<span class="emp">يتم أخذ ألوان التصميم من الشعار تلقائياً</span></div>
  <div class="row"><button class="btn" data-act="pub">حفظ ونشر للوكيلة</button><button class="btn g" data-act="add">+ قسم جديد</button><button class="btn g" data-act="view">معاينة</button><button class="btn g" data-act="lnk">🔗 نسخ رابط الوكيلة</button><button class="btn g" data-act="bk">⬇ نسخة احتياطية</button></div></div>`;
  else h+=`<div class="bar"><span class="emp">تصفية:</span>${SUBS.map(x=>`<span class="chip ${flt===x?'on':''}" data-act="f" data-v="${x}">${x||'الكل'}</span>`).join('')}${can&&!PUBLIC_VIEW&&!VIEWER_MODE?'<button class="btn" data-act="ed" style="margin-inline-start:auto">تعديل الملف</button>':''}</div>`;
  for(const {s,i} of vis){
   const its=s.items.map((it,j)=>({it,j})).filter(o=>edit||!flt||!o.it.sub||o.it.sub===flt);
   h+=`<section id="s${i}" class="${s.on?'':'off'}"><div class="sh"><div class="ic">${ico(s.ic)}</div>${edit?`<input data-s="${i}" data-k="t" value="${esc(s.t)}" style="flex:1">`:`<h2>${esc(s.t)}</h2>`}
-  ${edit?`<button class="btn g" data-act="tg" data-s="${i}">${s.on?'👁 ظاهر':'🚫 مخفي'}</button><button class="btn g" data-act="up" data-s="${i}">↑</button><button class="btn g" data-act="dn" data-s="${i}">↓</button>`:''}</div><div class="sb">`;
+  ${edit?`<button class="btn g" data-act="tg" data-s="${i}">${s.on?'👁 ظاهر':'🚫 مخفي'}</button><button class="btn g" data-act="up" data-s="${i}">↑</button><button class="btn g" data-act="dn" data-s="${i}">↓</button><button class="btn r" data-act="ds" data-s="${i}">🗑 حذف القسم</button>`:''}</div><div class="sb">`;
   if(!its.length)h+=`<div class="emp">لا توجد محتويات بعد</div>`;
   for(const {it,j} of its){
    h+=`<div class="it">`;
@@ -171,7 +171,7 @@ async function save(){if(SUPABASE_READY){await publishSupabase();return}const ht
 document.addEventListener('input',e=>{const t=e.target,d=t.dataset;if(d.q!==undefined){Q[d.q][d.k]=t.value;return}if(d.g){S[d.g]=t.value;dirty=true}else if(d.k&&d.s!==undefined){const s=S.secs[d.s];if(d.i!==undefined)s.items[d.i][d.k]=t.value;else s[d.k]=t.value;dirty=true}});
 document.addEventListener('change',async e=>{const t=e.target,d=t.dataset;
  if(d.k==='sub'){if(d.q!==undefined)Q[d.q].sub=t.value;render();return}
- if(d.qup!==undefined){await addF(Q[d.qup].f,t.files);render();return}
+ if(d.qup!==undefined){await addF(Q[d.qup].f,t.files);dirty=true;render();return}
  if(t.hasAttribute('data-logo')&&t.files[0]){S.logo=await cmp(t.files[0],400);const c=await dom(S.logo);if(c)S.accent=c;dirty=true;render()}
  if(t.hasAttribute('data-up')){await addF(S.secs[d.s].items[d.i].f,t.files);dirty=true;render()}});
 async function addF(arr,files){for(const f of files){if(f.type.startsWith('image/'))arr.push({n:f.name,ty:'i',d:await cmp(f)});else if(f.size>MAX_SINGLE_FILE_BYTES)toast('الملف '+f.name+' أكبر من '+Math.round(MAX_SINGLE_FILE_BYTES/1024/1024)+' ميجا');else arr.push({n:f.name,ty:/pdf/i.test(f.name)?'p':'x',d:await rd(f)})}}
@@ -187,10 +187,12 @@ document.addEventListener('click',async e=>{
  case 'bk':{const h=build();if(h)nativeDownload('نسخة-احتياطية-ملف-الإنجاز.html',h);break}
  case 'add':{const t=prompt('اسم القسم الجديد');if(t){S.secs.push({t,ic:'s',on:true,items:[]});dirty=true;render()}break}
  case 'tg':s.on=!s.on;dirty=true;render();break;
+ case 'ds':if(s&&confirm('حذف هذا القسم وجميع محتوياته؟ لا يمكن التراجع عن الحذف قبل الحفظ.')){S.secs.splice(+d.s,1);dirty=true;render()}break;
+ case 'clogo':if(confirm('حذف شعار المدرسة؟')){S.logo='';dirty=true;render()}break;
  case 'up':case 'dn':{const i=+d.s,j=d.act==='up'?i-1:i+1;if(S.secs[j]){[S.secs[i],S.secs[j]]=[S.secs[j],S.secs[i]];render()}break}
  case 'qa':{const q=Q[d.s];if(!q.t&&!q.n&&!q.f.length)return toast('اكتبي نصاً أو أرفقي ملفاً');s.items.push(q);Q[d.s]=null;delete Q[d.s];dirty=true;render();break}
- case 'di':if(confirm('حذف هذا العنصر؟')){s.items.splice(d.i,1);render()}break;
- case 'rf':it.f.splice(d.k,1);render();break;
+ case 'di':if(s&&confirm('حذف هذا المحتوى بالكامل؟ لا يمكن التراجع عن الحذف قبل الحفظ.')){s.items.splice(d.i,1);dirty=true;render()}break;
+ case 'rf':if(it&&it.f&&confirm('حذف هذا المرفق؟')){it.f.splice(d.k,1);dirty=true;render();}break;
  case 'img':{const f=it.f[d.k];M.className='on';M.innerHTML=`<img src="${f.d}"><button class="btn" data-act="x">إغلاق</button>`;break}
  case 'x':close();break;
  case 'doc':{const f=it.f[d.k];if(f.ty==='p'){const u=URL.createObjectURL(blob(f.d));M.className='on';M.innerHTML=`<iframe src="${u}"></iframe><div><button class="btn" data-act="x">إغلاق</button><button class="btn g" data-act="sv" data-s="${d.s}" data-i="${d.i}" data-k="${d.k}">تحميل</button></div>`}else{await sv(f)}break}
@@ -198,8 +200,7 @@ document.addEventListener('click',async e=>{
 });
 async function sv(f){try{nativeDownload(f.n,blob(f.d))}catch(e){toast('تعذّر التحميل')}}
 window.addEventListener('beforeunload',e=>{if(edit&&dirty)e.preventDefault()});
-can=!PUBLIC_VIEW&&!VIEWER_MODE;
-edit=!PUBLIC_VIEW&&!VIEWER_MODE;
+can=!PUBLIC_VIEW;
+edit=!PUBLIC_VIEW;
 render();
-if(VIEWER_MODE)loadViewer();
 </script></body></html>
