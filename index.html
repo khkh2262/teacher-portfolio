@@ -71,7 +71,7 @@ function authHeaders(){const x=getSession();return x&&x.access_token?{'Authoriza
 function authBox(msg=''){
  if(VIEWER_MODE||document.getElementById('authbox'))return;
  const b=document.createElement('div');b.id='authbox';b.style='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
- b.innerHTML=`<div style="background:var(--c);color:var(--t);max-width:420px;width:100%;border-radius:18px;padding:22px"><h2 style="margin-top:0">دخول المعلمة</h2><p class="emp">استخدمي بريد وكلمة مرور حساب التطبيق في Supabase.</p><input id="ae" type="email" placeholder="البريد الإلكتروني" style="width:100%;margin:6px 0;padding:12px"><input id="ap" type="password" placeholder="كلمة المرور" style="width:100%;margin:6px 0;padding:12px"><div class="row"><button id="alog" class="btn">دخول</button><button id="areg" class="btn g">إنشاء الحساب</button></div><div id="amsg" class="emp" style="margin-top:10px">${esc(msg)}</div></div>`;
+ b.innerHTML=`<div style="background:var(--c);color:var(--t);max-width:420px;width:100%;border-radius:18px;padding:22px;position:relative"><button id="aclose" type="button" aria-label="إغلاق" style="position:absolute;top:10px;left:10px;width:36px;height:36px;border:0;border-radius:50%;font-size:24px;cursor:pointer;background:transparent;color:var(--t)">×</button><h2 style="margin-top:0;padding-left:35px">دخول المعلمة</h2><p class="emp">استخدمي بريد وكلمة مرور حساب التطبيق في Supabase.</p><input id="ae" type="email" placeholder="البريد الإلكتروني" style="width:100%;margin:6px 0;padding:12px"><input id="ap" type="password" placeholder="كلمة المرور" style="width:100%;margin:6px 0;padding:12px"><div class="row"><button id="alog" class="btn">دخول</button><button id="areg" class="btn g">إنشاء الحساب</button></div><div id="amsg" class="emp" style="margin-top:10px">${esc(msg)}</div></div>`;
  document.body.appendChild(b);
  const run=async(mode)=>{
   const email=$('#ae').value.trim(),password=$('#ap').value;
@@ -82,6 +82,10 @@ function authBox(msg=''){
   }catch(e){$('#amsg').textContent=e.message||'تعذر إتمام العملية'}
  };
  $('#alog').onclick=()=>run('login');$('#areg').onclick=()=>run('signup');
+ $('#aclose').onclick=()=>b.remove();
+ b.addEventListener('click',e=>{if(e.target===b)b.remove()});
+ const onEsc=e=>{if(e.key==='Escape'&&document.getElementById('authbox')){b.remove();document.removeEventListener('keydown',onEsc)}};
+ document.addEventListener('keydown',onEsc);
 }
 async function loadViewer(){
  if(!SUPABASE_READY)return;
