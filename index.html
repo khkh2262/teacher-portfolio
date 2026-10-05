@@ -57,7 +57,7 @@ const SUPABASE_URL='https://mrztmlnwtchcpmlutjup.supabase.co/rest/v1/';
 const SUPABASE_KEY='sb_publishable_Cy64ks3XjIpYbWqmysW20w_TE2B1G01';
 const DOCUMENT_ID='2e9b2d91-6c2a-4f95-9b9f-7c7d8e5a4b31';
 const SUPABASE_READY=!SUPABASE_URL.includes('ضعِي_هنا')&&!SUPABASE_KEY.includes('ضعِي_هنا');
-const VIEWER_MODE=new URLSearchParams(location.search).get('view')==='1';
+const VIEWER_MODE=new URLSearchParams(location.search).get('view')==='1'||new URLSearchParams(location.hash.replace(/^#/,'?')).get('view')==='1';
 async function sbFetch(path,opts={}){
  if(!SUPABASE_READY) throw new Error('Supabase غير مُعد');
  const h=Object.assign({'apikey':SUPABASE_KEY,'Content-Type':'application/json'},opts.headers||{});
@@ -198,7 +198,8 @@ document.addEventListener('click',async e=>{
 });
 async function sv(f){try{nativeDownload(f.n,blob(f.d))}catch(e){toast('تعذّر التحميل')}}
 window.addEventListener('beforeunload',e=>{if(edit&&dirty)e.preventDefault()});
-can=!PUBLIC_VIEW;
-edit=!PUBLIC_VIEW;
+can=!PUBLIC_VIEW&&!VIEWER_MODE;
+edit=!PUBLIC_VIEW&&!VIEWER_MODE;
 render();
+if(VIEWER_MODE)loadViewer();
 </script></body></html>
