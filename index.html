@@ -61,7 +61,7 @@ const VIEWER_MODE=new URLSearchParams(location.search).get('view')==='1'||new UR
 async function sbFetch(path,opts={}){
  if(!SUPABASE_READY) throw new Error('Supabase غير مُعد');
  const h=Object.assign({'apikey':SUPABASE_KEY,'Content-Type':'application/json'},opts.headers||{});
- const sep=path.includes('?')?'&':'?'; const r=await fetch(SUPABASE_URL+path+sep+'_t='+Date.now(),Object.assign({},opts,{cache:'no-store',headers:h}));
+ const r=await fetch(SUPABASE_URL+path,Object.assign({},opts,{cache:'no-store',headers:Object.assign({'Cache-Control':'no-cache','Pragma':'no-cache'},h)}));
  const txt=await r.text();let j=null;try{j=txt?JSON.parse(txt):null}catch(_){}
  if(!r.ok)throw new Error((j&&(j.msg||j.message||j.error_description||j.error))||txt||('HTTP '+r.status));return j;
 }
@@ -89,13 +89,13 @@ function authBox(msg=''){
 }
 async function loadViewer(){
  if(!SUPABASE_READY)return;
- try{const rows=await sbFetch('/rest/v1/portfolio_documents?id=eq.'+DOCUMENT_ID+'&published_at=not.is.null&select=data');
+ try{const rows=await sbFetch('/rest/v1/portfolio_documents?id=eq.'+encodeURIComponent(DOCUMENT_ID)+'&published_at=not.is.null&select=data');
   if(rows&&rows[0]&&rows[0].data){S=rows[0].data;edit=false;can=false;render()}
  }catch(e){console.warn(e)}
 }
 async function loadTeacher(){
  const x=getSession();if(!x||!x.access_token)return false;
- try{const rows=await sbFetch('/rest/v1/portfolio_documents?id=eq.'+DOCUMENT_ID+'&select=data,owner_id',{headers:authHeaders()});
+ try{const rows=await sbFetch('/rest/v1/portfolio_documents?id=eq.'+encodeURIComponent(DOCUMENT_ID)+'&select=data,owner_id',{headers:authHeaders()});
   if(rows&&rows[0]&&rows[0].data)S=rows[0].data;return true;
  }catch(e){console.warn(e);return false}
 }
@@ -105,7 +105,7 @@ async function publishSupabase(){
  try{const me=await sbFetch('/auth/v1/user',{headers:authHeaders()});
   const body={id:DOCUMENT_ID,owner_id:me.id,title:'ملف الإنجاز الإلكتروني',data:S,published_at:new Date().toISOString()};
   await sbFetch('/rest/v1/portfolio_documents?on_conflict=id',{method:'POST',headers:Object.assign({'Prefer':'resolution=merge-duplicates,return=minimal'},authHeaders()),body:JSON.stringify(body)});
-  const verify=await sbFetch('/rest/v1/portfolio_documents?id=eq.'+DOCUMENT_ID+'&select=updated_at,published_at,data',{headers:authHeaders()});
+  const verify=await sbFetch('/rest/v1/portfolio_documents?id=eq.'+encodeURIComponent(DOCUMENT_ID)+'&select=updated_at,published_at,data',{headers:authHeaders()});
   if(!verify||!verify[0]||!verify[0].data)throw new Error('لم يتم التحقق من النسخة المنشورة');
   dirty=false;toast('تم الحفظ والنشر للوكيلة تلقائياً');try{await navigator.clipboard.writeText(location.origin+location.pathname+'?view=1');toast('تم نسخ رابط الوكيلة')}catch(_){}
  }catch(e){toast('تعذر النشر: '+e.message)}
