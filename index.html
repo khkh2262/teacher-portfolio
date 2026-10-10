@@ -132,7 +132,7 @@ function render(){
  ${S.logo?`<img class="logo" src="${S.logo}">`:`<div class="ph">${edit?'الشعار':''}</div>`}
  <div class="sub">${esc(S.school)}</div><h1>ملف الإنجاز الإلكتروني</h1><div>${esc(S.name)} · ${esc(S.year)}</div>
  <div class="tags"><span class="tag">معلمة حاسب</span><span class="tag">معلمة مهارات حياتية وأسرية</span></div></div>
- <nav>${vis.map(o=>`<a href="#s${o.i}">${esc(o.s.t)}</a>`).join('')}</nav><main>`;
+ <nav>${vis.filter(o=>o.s.on).map(o=>`<a href="#s${o.i}">${esc(o.s.t)}</a>`).join('')}</nav><main>`;
  if(edit)h+=`<div class="it" style="margin-bottom:14px"><b>إعدادات الملف</b><div class="row"><input data-g="school" value="${esc(S.school)}" placeholder="اسم المدرسة"><input data-g="name" value="${esc(S.name)}" placeholder="اسم المعلمة"><input data-g="year" value="${esc(S.year)}" placeholder="العام"></div>
  <div class="row"><label class="btn g">رفع شعار المدرسة<input type="file" accept="image/*" hidden data-logo></label>${S.logo?'<button class="btn r" data-act="clogo">🗑 حذف الشعار</button>':''}<span class="emp">يتم أخذ ألوان التصميم من الشعار تلقائياً</span></div>
  <div class="row"><button class="btn" data-act="pub">حفظ ونشر للوكيلة</button><button class="btn g" data-act="add">+ قسم جديد</button><button class="btn g" data-act="view">معاينة</button><button class="btn g" data-act="lnk">🔗 نسخ رابط الوكيلة</button><button class="btn g" data-act="bk">⬇ نسخة احتياطية</button></div></div>`;
