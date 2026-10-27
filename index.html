@@ -79,19 +79,22 @@ function render(){
   if(!its.length)h+=`<div class="emp">لا توجد محتويات بعد</div>`;
   for(const {it,j} of its){
    h+=`<div class="it">`;
-   if(edit)h+=`<div class="row"><input data-s="${i}" data-i="${j}" data-k="t" value="${esc(it.t)}" placeholder="العنوان" style="flex:2"><select data-s="${i}" data-i="${j}" data-k="sub" style="flex:1">${SUBS.map(x=>`<option value="${x}" ${it.sub===x?'selected':''}>${x||'كل المواد'}</option>`).join('')}</select></div><textarea rows="3" data-s="${i}" data-i="${j}" data-k="n" placeholder="الوصف">${esc(it.n)}</textarea>`;
-   else h+=`<h3>${esc(it.t)}${it.sub?`<span class="bd">${it.sub}</span>`:''}</h3>${it.n?`<div class="nt">${esc(it.n)}</div>`:''}`;
-   const im=it.f.map((f,k)=>({f,k})).filter(o=>o.f.ty==='i'),dc=it.f.map((f,k)=>({f,k})).filter(o=>o.f.ty!=='i');
+   if(edit)h+=`<div class="row"><input data-s="${i}" data-i="${j}" data-k="t" value="${esc(it.t)}" placeholder="العنوان" style="flex:2"><select data-s="${i}" data-i="${j}" data-k="sub" style="flex:1">${SUBS.map(x=>`<option value="${x}" ${it.sub===x?'selected':''}>${x||'كل المواد'}</option>`).join('')}</select></div><textarea rows="3" data-s="${i}" data-i="${j}" data-k="n" placeholder="الوصف">${esc(it.n)}</textarea><input data-s="${i}" data-i="${j}" data-k="link" value="${esc(it.link)}" placeholder="رابط فيديو (يوتيوب أو درايف) - اختياري">`;
+   else h+=`<h3>${esc(it.t)}${it.sub?`<span class="bd">${it.sub}</span>`:''}</h3>${it.n?`<div class="nt">${al(esc(it.n))}</div>`:''}${lk(it.link)}`;
+   const im=it.f.map((f,k)=>({f,k})).filter(o=>o.f.ty==='i'),vd=it.f.map((f,k)=>({f,k})).filter(o=>o.f.ty==='v'),dc=it.f.map((f,k)=>({f,k})).filter(o=>o.f.ty!=='i'&&o.f.ty!=='v');
    if(im.length)h+=`<div class="gal">${im.map(o=>`<div style="position:relative"><img src="${o.f.d}" data-act="img" data-s="${i}" data-i="${j}" data-k="${o.k}">${edit?`<span class="xx" style="position:absolute;top:4px;left:4px;background:#fff;border-radius:6px" data-act="rf" data-s="${i}" data-i="${j}" data-k="${o.k}">✕</span>`:''}</div>`).join('')}</div>`;
+   if(vd.length)h+=`<div class="gal">${vd.map(o=>`<div style="position:relative"><video controls preload="metadata" playsinline src="${o.f.d}" style="width:100%;border-radius:10px;background:#000"></video>${edit?`<span class="xx" style="position:absolute;top:4px;left:4px;background:#fff;border-radius:6px" data-act="rf" data-s="${i}" data-i="${j}" data-k="${o.k}">✕</span>`:''}</div>`).join('')}</div>`;
    if(dc.length)h+=`<div class="fl">${dc.map(o=>`<div class="fb" data-act="doc" data-s="${i}" data-i="${j}" data-k="${o.k}"><b>${o.f.ty==='p'?'PDF':'PPT'}</b>${esc(o.f.n)}${edit?`<span class="xx" data-act="rf" data-s="${i}" data-i="${j}" data-k="${o.k}">✕</span>`:''}</div>`).join('')}</div>`;
-   if(edit)h+=`<div class="row" style="margin-top:8px"><label class="btn g">📎 إرفاق<input type="file" multiple accept="image/*,.pdf,.ppt,.pptx" hidden data-up data-s="${i}" data-i="${j}"></label><button class="btn r" data-act="di" data-s="${i}" data-i="${j}">حذف العنصر</button></div>`;
+   if(edit)h+=`<div class="row" style="margin-top:8px"><label class="btn g">📎 إرفاق<input type="file" multiple accept="image/*,video/*,.pdf,.ppt,.pptx" hidden data-up data-s="${i}" data-i="${j}"></label><button class="btn r" data-act="di" data-s="${i}" data-i="${j}">حذف العنصر</button></div>`;
    h+=`</div>`;
   }
-  if(edit){const q=Q[i]||(Q[i]={t:'',n:'',sub:'',f:[]});h+=`<div class="qa"><b style="font-size:13px">إضافة جديدة</b><div class="row"><input data-q="${i}" data-k="t" value="${esc(q.t)}" placeholder="العنوان" style="flex:2"><select data-q="${i}" data-k="sub" style="flex:1">${SUBS.map(x=>`<option value="${x}" ${q.sub===x?'selected':''}>${x||'كل المواد'}</option>`).join('')}</select></div><textarea rows="3" data-q="${i}" data-k="n" placeholder="اكتبي هنا...">${esc(q.n)}</textarea><div class="row"><label class="btn g" title="إرفاق ملف">📎 إرفاق<input type="file" multiple accept="image/*,.pdf,.ppt,.pptx" hidden data-qup="${i}"></label>${q.f.map(f=>`<span class="pill">${esc(f.n)}</span>`).join('')}<button class="btn" data-act="qa" data-s="${i}" style="margin-inline-start:auto">إضافة</button></div></div>`}
+  if(edit){const q=Q[i]||(Q[i]={t:'',n:'',sub:'',link:'',f:[]});h+=`<div class="qa"><b style="font-size:13px">إضافة جديدة</b><div class="row"><input data-q="${i}" data-k="t" value="${esc(q.t)}" placeholder="العنوان" style="flex:2"><select data-q="${i}" data-k="sub" style="flex:1">${SUBS.map(x=>`<option value="${x}" ${q.sub===x?'selected':''}>${x||'كل المواد'}</option>`).join('')}</select></div><textarea rows="3" data-q="${i}" data-k="n" placeholder="اكتبي هنا...">${esc(q.n)}</textarea><input data-q="${i}" data-k="link" value="${esc(q.link)}" placeholder="رابط فيديو (يوتيوب أو درايف) - اختياري"><div class="row"><label class="btn g" title="إرفاق ملف">📎 إرفاق<input type="file" multiple accept="image/*,video/*,.pdf,.ppt,.pptx" hidden data-qup="${i}"></label>${q.f.map(f=>`<span class="pill">${esc(f.n)}</span>`).join('')}<button class="btn" data-act="qa" data-s="${i}" style="margin-inline-start:auto">إضافة</button></div></div>`}
   h+=`</div></section>`;
  }
  $('#root').innerHTML=h+`</main><footer>${esc(S.school)} · ${esc(S.name)}</footer>`;
 }
+const al=t=>t.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:var(--a);word-break:break-all">$1</a>');
+const lk=u=>/^https?:\/\//i.test(u||'')?`<a class="btn" style="display:inline-block;margin-top:8px;text-decoration:none" href="${esc(u)}" target="_blank" rel="noopener">▶ مشاهدة الفيديو / الرابط</a>`:'';
 const toast=t=>{const e=document.createElement('div');e.className='toast';e.textContent=t;document.body.append(e);setTimeout(()=>e.remove(),3500)};
 const rd=f=>new Promise(r=>{const x=new FileReader();x.onload=()=>r(x.result);x.readAsDataURL(f)});
 const cmp=(f,m=1600)=>new Promise(r=>{const i=new Image();i.onload=()=>{const k=Math.min(1,m/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=i.width*k;c.height=i.height*k;c.getContext('2d').drawImage(i,0,0,c.width,c.height);r(c.toDataURL('image/jpeg',.8))};i.src=URL.createObjectURL(f)});
@@ -100,7 +103,7 @@ function blob(d){const [h,b]=d.split(','),s=atob(b),u=new Uint8Array(s.length);f
 const M=$('#m'),close=()=>{M.className='';M.innerHTML=''};
 
 function build(){const js=JSON.stringify(S).replace(/</g,'\\u003c');
-if(js.length>14e6){toast('حجم الملف كبير جداً، قلّلي الصور أو الملفات');return null}
+if(js.length>30e6){toast('حجم الملف كبير جداً، قلّلي الصور أو الملفات');return null}
  return '<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>ملف الإنجاز الإلكتروني</title><style id="st">'+$('#st').textContent+'</style></head><body><div id="root"></div><div id="m"></div><script id="d" type="application/json">'+js+'<\/script><script id="app">'+$('#app').textContent+'<\/script></body></html>'}
 async function lnk(){const u=location.href.split('?')[0].split('#')[0];try{await navigator.clipboard.writeText(u);toast('تم نسخ رابط الوكيلة')}catch(e){prompt('انسخي الرابط:',u)}}
 const gcfg=()=>JSON.parse(localStorage.getItem('gh')||'null');
@@ -125,7 +128,7 @@ document.addEventListener('change',async e=>{const t=e.target,d=t.dataset;
  if(d.qup!==undefined){await addF(Q[d.qup].f,t.files);render();return}
  if(t.hasAttribute('data-logo')&&t.files[0]){S.logo=await cmp(t.files[0],400);const c=await dom(S.logo);if(c)S.accent=c;dirty=true;render()}
  if(t.hasAttribute('data-up')){await addF(S.secs[d.s].items[d.i].f,t.files);dirty=true;render()}});
-async function addF(arr,files){for(const f of files){if(f.type.startsWith('image/'))arr.push({n:f.name,ty:'i',d:await cmp(f)});else if(f.size>8e6)toast('الملف '+f.name+' أكبر من 8 ميجا');else arr.push({n:f.name,ty:/pdf/i.test(f.name)?'p':'x',d:await rd(f)})}}
+async function addF(arr,files){for(const f of files){if(f.type.startsWith('image/'))arr.push({n:f.name,ty:'i',d:await cmp(f)});else if(f.size>25e6)toast('الملف '+f.name+' أكبر من 25 ميجا، للفيديو الطويل استخدمي رابط يوتيوب');else arr.push({n:f.name,ty:f.type.startsWith('video/')?'v':/pdf/i.test(f.name)?'p':'x',d:await rd(f)})}}
 document.addEventListener('click',async e=>{
  if(e.target===M){close();return}
  const el=e.target.closest('[data-act]');if(!el)return;const d=el.dataset,s=S.secs[d.s],it=s&&s.items[d.i];e.stopPropagation();
@@ -139,7 +142,7 @@ document.addEventListener('click',async e=>{
  case 'add':{const t=prompt('اسم القسم الجديد');if(t){S.secs.push({t,ic:'s',on:true,items:[]});dirty=true;render()}break}
  case 'tg':s.on=!s.on;dirty=true;render();break;
  case 'up':case 'dn':{const i=+d.s,j=d.act==='up'?i-1:i+1;if(S.secs[j]){[S.secs[i],S.secs[j]]=[S.secs[j],S.secs[i]];render()}break}
- case 'qa':{const q=Q[d.s];if(!q.t&&!q.n&&!q.f.length)return toast('اكتبي نصاً أو أرفقي ملفاً');s.items.push(q);Q[d.s]=null;delete Q[d.s];dirty=true;render();break}
+ case 'qa':{const q=Q[d.s];if(!q.t&&!q.n&&!q.f.length&&!q.link)return toast('اكتبي نصاً أو أرفقي ملفاً');s.items.push(q);Q[d.s]=null;delete Q[d.s];dirty=true;render();break}
  case 'di':if(confirm('حذف هذا العنصر؟')){s.items.splice(d.i,1);render()}break;
  case 'rf':it.f.splice(d.k,1);render();break;
  case 'img':{const f=it.f[d.k];M.className='on';M.innerHTML=`<img src="${f.d}"><button class="btn" data-act="x">إغلاق</button>`;break}
