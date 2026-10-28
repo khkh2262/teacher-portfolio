@@ -103,7 +103,7 @@ function blob(d){const [h,b]=d.split(','),s=atob(b),u=new Uint8Array(s.length);f
 const M=$('#m'),close=()=>{M.className='';M.innerHTML=''};
 
 function build(){const js=JSON.stringify(S).replace(/</g,'\\u003c');
-if(js.length>30e6){toast('حجم الملف كبير جداً، قلّلي الصور أو الملفات');return null}
+if(js.length>70e6){toast('حجم الملف كبير جداً، قلّلي الصور أو الملفات');return null}
  return '<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>ملف الإنجاز الإلكتروني</title><style id="st">'+$('#st').textContent+'</style></head><body><div id="root"></div><div id="m"></div><script id="d" type="application/json">'+js+'<\/script><script id="app">'+$('#app').textContent+'<\/script></body></html>'}
 async function lnk(){const u=location.href.split('?')[0].split('#')[0];try{await navigator.clipboard.writeText(u);toast('تم نسخ رابط الوكيلة')}catch(e){prompt('انسخي الرابط:',u)}}
 const gcfg=()=>JSON.parse(localStorage.getItem('gh')||'null');
@@ -128,7 +128,7 @@ document.addEventListener('change',async e=>{const t=e.target,d=t.dataset;
  if(d.qup!==undefined){await addF(Q[d.qup].f,t.files);render();return}
  if(t.hasAttribute('data-logo')&&t.files[0]){S.logo=await cmp(t.files[0],400);const c=await dom(S.logo);if(c)S.accent=c;dirty=true;render()}
  if(t.hasAttribute('data-up')){await addF(S.secs[d.s].items[d.i].f,t.files);dirty=true;render()}});
-async function addF(arr,files){for(const f of files){if(f.type.startsWith('image/'))arr.push({n:f.name,ty:'i',d:await cmp(f)});else if(f.size>25e6)toast('الملف '+f.name+' أكبر من 25 ميجا، للفيديو الطويل استخدمي رابط يوتيوب');else arr.push({n:f.name,ty:f.type.startsWith('video/')?'v':/pdf/i.test(f.name)?'p':'x',d:await rd(f)})}}
+async function addF(arr,files){for(const f of files){if(f.type.startsWith('image/'))arr.push({n:f.name,ty:'i',d:await cmp(f)});else if(f.size>60e6)toast('الملف '+f.name+' أكبر من 60 ميجا، للفيديو الطويل استخدمي رابط يوتيوب');else arr.push({n:f.name,ty:f.type.startsWith('video/')?'v':/pdf/i.test(f.name)?'p':'x',d:await rd(f)})}}
 document.addEventListener('click',async e=>{
  if(e.target===M){close();return}
  const el=e.target.closest('[data-act]');if(!el)return;const d=el.dataset,s=S.secs[d.s],it=s&&s.items[d.i];e.stopPropagation();
